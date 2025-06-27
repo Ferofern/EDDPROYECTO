@@ -1,43 +1,21 @@
 package oproyectoedd;
 
-import java.util.Comparator;
+import java.util.*;
 
 public class ComparadoresContacto {
 
-    // Ordena por nombre (atributo "nombre")
-    public static Comparator<Contacto> porNombre = new Comparator<Contacto>() {
-        @Override
-        public int compare(Contacto c1, Contacto c2) {
-            String n1 = c1.getAtributos().getOrDefault("nombre", "").toLowerCase();
-            String n2 = c2.getAtributos().getOrDefault("nombre", "").toLowerCase();
-            return n1.compareTo(n2);
-        }
-    };
+    public static Comparator<Contacto> porNombre = Comparator.comparing(
+        c -> c.getAtributos().getOrDefault("nombre", "").toLowerCase()
+    );
 
-    // Ordena por tipo de contacto ("persona" o "empresa")
-    public static Comparator<Contacto> porTipo = new Comparator<Contacto>() {
-        @Override
-        public int compare(Contacto c1, Contacto c2) {
-            return c1.getTipo().compareToIgnoreCase(c2.getTipo());
-        }
-    };
+    public static Comparator<Contacto> porTipo = Comparator.comparing(
+        c -> c.getTipo().toLowerCase()
+    );
 
-    // Ordena por país (atributo "pais")
-    public static Comparator<Contacto> porPais = new Comparator<Contacto>() {
-        @Override
-        public int compare(Contacto c1, Contacto c2) {
-            String p1 = c1.getAtributos().getOrDefault("pais", "").toLowerCase();
-            String p2 = c2.getAtributos().getOrDefault("pais", "").toLowerCase();
-            return p1.compareTo(p2);
-        }
-    };
+    public static Comparator<Contacto> porPais = Comparator.comparing(
+        c -> c.getAtributos().getOrDefault("pais", "").toLowerCase()
+    );
 
-    // Ordena por cantidad de atributos (de mayor a menor)
-    public static Comparator<Contacto> porCantidadAtributos = new Comparator<Contacto>() {
-        @Override
-        public int compare(Contacto c1, Contacto c2) {
-            return Integer.compare(c2.getAtributos().size(), c1.getAtributos().size());
-        }
-    };
+    public static Comparator<Contacto> porCantidadAtributos = (c1, c2) ->
+        Integer.compare(c2.getAtributos().size(), c1.getAtributos().size());
 }
-    
