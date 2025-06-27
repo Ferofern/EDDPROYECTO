@@ -1,10 +1,18 @@
 package oproyectoedd;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class MenuConsola {
     private GestorContactos gestor;
     private Scanner scanner;
+    private static final String ARCHIVO = "contactos.txt";
 
     public MenuConsola() {
         gestor = new GestorContactos();
@@ -12,6 +20,7 @@ public class MenuConsola {
     }
 
     public void iniciar() {
+        cargarDesdeArchivo();
         boolean salir = false;
         while (!salir) {
             System.out.println("\n--- MENU DE CONTACTOS ---");
@@ -32,6 +41,7 @@ public class MenuConsola {
                 case 4 -> eliminarContacto();
                 case 5 -> navegarContactos();
                 case 6 -> {
+                    guardarEnArchivo();
                     System.out.println("Saliendo...");
                     salir = true;
                 }
@@ -122,6 +132,109 @@ public class MenuConsola {
                 case "S" -> salir = true;
                 default -> System.out.println("Opción no válida.");
             }
+        }
+    }
+
+    private void cargarDesdeArchivo() {
+        File file = new File(ARCHIVO);
+        if (!file.exists()) {
+            System.out.println("No se encontró archivo de datos, iniciando vacío.");
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String linea;
+            // Mapa para almacenar temporalmente las asociaciones
+            Map<String, String[]> mapaAsociaciones = new HashMap<>();
+
+            while ((linea = br.readLine()) != null) {
+                String[] partes = linea.split(",");
+                if (partes.length < 2) continue;
+
+                String id = partes[0];
+                String tipo = partes[1];
+
+                Contacto c = new Contacto(id, tipo, "00000000");
+
+                for (int i = 2; i < partes.length; i++) {
+                    String parte = partes[i];
+                    if (parte.startsWith("telefonos=")) {
+                        String[] telfs = parte.substring(9).split(";");
+                        for (String t : telfs) c.addTelefono(t);
+                    } else if (parte.startsWith("fotos=")) {
+                        String[] fotos = parte.substring(6).split(";");
+                        for (String f : fotos) c.addFoto(f);
+                    } else if (parte.startsWith("asociados=")) {
+                        String[] idsAsociados = parte.substring(9).split(";");
+                        mapaAsociaciones.put(id, idsAsociados);
+                    } else if (parte.contains("=")) {
+                        String[] kv = parte.split("=", 2);
+                        c.addAtributo(kv[0], kv[1]);
+                    }
+                }
+
+                gestor.agregarContactoDirectamente(id, c);
+            }
+
+            // Asociar contactos después de cargar todos
+            for (Map.Entry<String, String[]> entry : mapaAsociaciones.entrySet()) {
+                String id = entry.getKey();
+                String[] asociadosIds = entry.getValue();
+                for (String asociadoId : asociadosIds) {
+                    if (gestor.existeId(id) && gestor.existeId(asociadoId)) {
+                        gestor.asociarContactos(id, asociadoId);
+                    }
+                }
+            }
+
+            System.out.println("Datos cargados desde " + ARCHIVO);
+
+        } catch (Exception e) {
+            System.out.println("Error leyendo archivo: " + e.getMessage());
+        }
+    }
+
+
+    private void guardarEnArchivo() {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(ARCHIVO))) {
+            Contacto[] todos = gestor.getTodos();
+            for (Contacto c : todos) {
+                // Guardar ID y tipo
+                pw.print(c.getId() + "," + c.getTipo());
+
+                // Guardar atributos
+                for (var e : c.getAtributos().entrySet()) {
+                    pw.print("," + e.getKey() + "=" + e.getValue());
+                }
+
+                // Aquí es donde reemplazas las partes para guardar teléfonos, fotos y asociados:
+
+                // Guardar teléfonos
+                pw.print(",telefonos=");
+                for (int i = 0; i < c.getTotalTelefonos(); i++) {
+                    pw.print(c.getTelefonosArray()[i]);
+                    if (i < c.getTotalTelefonos() - 1) pw.print(";");
+                }
+
+                // Guardar fotos
+                pw.print(",fotos=");
+                for (int i = 0; i < c.getTotalFotos(); i++) {
+                    pw.print(c.getFotosArray()[i]);
+                    if (i < c.getTotalFotos() - 1) pw.print(";");
+                }
+
+                // Guardar asociados (solo IDs)
+                pw.print(",asociados=");
+                for (int i = 0; i < c.getTotalAsociados(); i++) {
+                    pw.print(c.getAsociadosArray()[i].getId());
+                    if (i < c.getTotalAsociados() - 1) pw.print(";");
+                }
+
+                pw.println();  // nueva línea para el siguiente contacto
+            }
+            System.out.println("Datos guardados en " + ARCHIVO);
+        } catch (Exception e) {
+            System.out.println("Error guardando archivo: " + e.getMessage());
         }
     }
 }

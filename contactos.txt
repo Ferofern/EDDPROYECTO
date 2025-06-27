@@ -1,0 +1,2 @@
+167,ESPOL,nombre=Javier,telefonos=0945714267,fotos=,asociados=
+242,ESPOL,nombre=Dasha,telefonos=0954761142,fotos=,asociados=

@@ -31,6 +31,14 @@ public class Contacto {
     public TreeMap<String, String> getAtributos() { return atributos; }
 
     // Teléfonos
+    public String[] getTelefonosArray() {
+        return telefonos;
+    }
+
+    public int getTotalTelefonos() {
+        return totalTelefonos;
+    }
+
     public void addTelefono(String telefono) {
         if (telefono != null && !telefono.isEmpty() && totalTelefonos < telefonos.length) {
             for (int i = 0; i < totalTelefonos; i++) {
@@ -62,6 +70,14 @@ public class Contacto {
     }
 
     // Fotos
+    public String[] getFotosArray() {
+        return fotos;
+    }
+
+    public int getTotalFotos() {
+        return totalFotos;
+    }
+
     public void addFoto(String ruta) {
         if (totalFotos < fotos.length) {
             fotos[totalFotos++] = ruta;
@@ -100,6 +116,14 @@ public class Contacto {
     }
 
     // Asociados
+    public Contacto[] getAsociadosArray() {
+        return asociados;
+    }
+
+    public int getTotalAsociados() {
+        return totalAsociados;
+    }
+    
     public void addAsociado(Contacto c) {
         if (totalAsociados < asociados.length) {
             asociados[totalAsociados++] = c;

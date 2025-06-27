@@ -14,6 +14,10 @@ public class GestorContactos {
         }
     }
 
+    public void agregarContactoDirectamente(String id, Contacto c) {
+        contactos.put(id, c);
+    }
+    
     public Contacto crearContacto(String tipo, String telefonoInicial) {
         if (telefonoInicial == null || telefonoInicial.length() < 2) {
             throw new IllegalArgumentException("El teléfono inicial debe tener al menos 2 dígitos.");
@@ -68,18 +72,6 @@ public class GestorContactos {
             c.mostrarAsociados();
             System.out.println("--------------------------");
         }
-    }
-
-    // Ejemplo de filtro por país
-    public Contacto[] filtrarPorAtributo(String clave, String valor) {
-        List<Contacto> resultado = new ArrayList<>();
-        for (Contacto c : contactos.values()) {
-            String val = c.getAtributos().get(clave);
-            if (val != null && val.equalsIgnoreCase(valor)) {
-                resultado.add(c);
-            }
-        }
-        return resultado.toArray(new Contacto[0]);
     }
 
     public boolean existeId(String id) {
